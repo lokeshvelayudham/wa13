@@ -116,6 +116,7 @@ posteriors_h4_new_prior = calculate_posteriors(data_h4, new_priors, likelihoods)
 # Calculate the MAP and ML probabilities
 p_lime_map_h3, p_lime_ml_h3 = calculate_map_ml(posteriors_h3_new_prior, likelihoods)
 p_lime_map_h4, p_lime_ml_h4 = calculate_map_ml(posteriors_h4_new_prior, likelihoods)
+print(p_lime_ml_h4)
 
 # Plotting the MAP and ML probabilities
 plt.figure(figsize=(14, 7))
@@ -131,8 +132,8 @@ plt.legend()
 
 # MAP and ML for h4
 plt.subplot(1, 2, 2)
-plt.plot(p_lime_map_h4, label='P(DN+1=lime|h_MAP) for h4', linestyle='--')
-plt.plot(p_lime_ml_h4, label='P(DN+1=lime|h_ML) for h4', linestyle='-')
+plt.plot(p_lime_map_h4, label='P(DN+1=lime|h_MAP) for h4', color= 'blue',linestyle='--')
+plt.plot(p_lime_ml_h4, label='P(DN+1=lime|h_ML) for h4',color= 'red', linestyle='-')
 plt.title('Predictive Probability MAP and ML for h4')
 plt.xlabel('Number of Observations in d')
 plt.ylabel('Probability that next candy is lime')

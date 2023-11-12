@@ -15,44 +15,45 @@ def posterior(likelihood, prior, N):
     data_likelihood = likelihood ** N
     return data_likelihood * prior
 
-# Arrays to hold the probability values
-prob_lime_hMAP = []
-prob_lime_hML = []
+# Since we want separate plots for h3 and h4, we'll need to recompute the probabilities where we don't switch the hypothesis
 
-# Calculate probabilities for N ranging from 1 to 100
-for N in range(1, 101):
-    # Calculate posteriors for both hypotheses
+# Function to calculate maximum a posteriori probability (hMAP) for h3 and h4
+def calculate_hMAP(likelihood_h3, likelihood_h4, prior_h3, prior_h4, N):
     post_h3 = posterior(likelihood_h3, prior_h3, N)
     post_h4 = posterior(likelihood_h4, prior_h4, N)
-    
-    # Normalize to get actual posterior probabilities
     norm_constant = post_h3 + post_h4
-    post_h3 /= norm_constant
-    post_h4 /= norm_constant
-    
-    # hMAP is the hypothesis with the highest posterior probability
-    if post_h3 > post_h4:
-        prob_lime_hMAP.append(likelihood_h3)  # Probability of lime for h3
-    else:
-        prob_lime_hMAP.append(likelihood_h4)  # Probability of lime for h4
-    
-    # hML is the hypothesis with the maximum likelihood given the data
-    # Since h4 always has a higher likelihood for lime, it will be hML
-    prob_lime_hML.append(likelihood_h4)  # Probability of lime for h4
+    post_h3_normalized = post_h3 / norm_constant
+    post_h4_normalized = post_h4 / norm_constant
+    return post_h3_normalized, post_h4_normalized
 
-# Now plot the probabilities
-N_values = range(1, 101)
+# Calculate hMAP for h3 and h4 separately
+prob_lime_h3_MAP = []
+prob_lime_h4_MAP = []
+
+for N in range(1, 101):
+    post_h3, post_h4 = calculate_hMAP(likelihood_h3, likelihood_h4, prior_h3, prior_h4, N)
+    prob_lime_h3_MAP.append(likelihood_h3 if post_h3 > post_h4 else 0)  # Only add if h3 is MAP
+    prob_lime_h4_MAP.append(likelihood_h4 if post_h4 > post_h3 else 0)  # Only add if h4 is MAP
+
+# Now we plot the probabilities for h3 and h4 separately
 plt.figure(figsize=(14, 7))
 
-# Plot P(DN+1=lime|hMAP)
-plt.plot(N_values, prob_lime_hMAP, label='P(DN+1=lime|hMAP)', color='blue')
-
-# Plot P(DN+1=lime|hML)
-plt.plot(N_values, prob_lime_hML, label='P(DN+1=lime|hML)', color='red', linestyle='--')
-
+# Plot for h3
+plt.subplot(1, 2, 1)
+plt.plot(range(1, 101), prob_lime_h3_MAP, label='P(DN+1=lime|h3 MAP)', color='green')
 plt.xlabel('Number of observations in d (N)')
 plt.ylabel('Probability that next candy is lime')
-plt.title('Predicted Probability of Lime Candy')
+plt.title('Probability of Lime Candy Given h3 MAP')
 plt.legend()
 plt.grid(True)
+
+# Plot for h4
+plt.subplot(1, 2, 2)
+plt.plot(range(1, 101), prob_lime_h4_MAP, label='P(DN+1=lime|h4 MAP)', color='purple')
+plt.xlabel('Number of observations in d (N)')
+plt.title('Probability of Lime Candy Given h4 MAP')
+plt.legend()
+plt.grid(True)
+
+plt.tight_layout()
 plt.show()
